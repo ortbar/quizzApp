@@ -49,12 +49,24 @@ public class SecurityConfig {
                     //configurar endpoints publicos
                     http.requestMatchers(HttpMethod.POST, "auth/**").permitAll();
                     //configurar endpoints privados
+
+                    http.requestMatchers(HttpMethod.POST, "/admin/questions/saveQuestion").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "/admin/questions/deleteQuestion/**").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET, "/admin/questions/AllQuestion").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT, "/admin/questions/updateQuestion/**").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET, "/admin/questions/findQuestion/**").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET, "/admin/questions/random").hasAnyRole("ADMIN","USER");
+
+
+
                     http.requestMatchers(HttpMethod.POST, "/api/games/saveGame").hasAnyAuthority("JUGAR");
                     http.requestMatchers(HttpMethod.GET, "/api/games/findGamesByUserId/**").hasAnyRole("ADMIN","USER"); // Permitir acceso al historial de partidas del usuario
-
                     http.requestMatchers(HttpMethod.GET, "/api/games/ranking").hasAnyRole("ADMIN","USER"); // Permitir acceso al ranking
                     http.requestMatchers(HttpMethod.DELETE, "/admin/games/deleteGame/**").hasRole("ADMIN"); // Solo administradores
                     http.requestMatchers(HttpMethod.GET, "/admin/games/findAll").hasRole("ADMIN"); // Solo administradores
+
+
+
                     http.requestMatchers(HttpMethod.POST, "method/post").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.PUT, "method/update").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "method/delete").hasRole("ADMIN");

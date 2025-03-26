@@ -6,16 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class QuestionDTO {
+public class AnswerDTO {
 
     private Long id;
-    private String textoPregunta;  // Texto de la pregunta
-    private List<AnswerDTO> answers;
-
+    private String answerText;  // Texto de la respuesta
+    private boolean esCorrecta;
 }

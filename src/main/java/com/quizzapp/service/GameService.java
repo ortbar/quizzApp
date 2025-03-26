@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,6 +74,11 @@ public class GameService {
 
     public List<GameDTO>findGamesByUserId(Long userId){
         List<GameEntity> gameEntities = gameRepository.findGameByUserId(userId);
+
+        if(gameEntities.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return gameEntities.stream()
                 .map(gameEntity -> GameDTO.builder()
                         .gameName(gameEntity.getGameName())

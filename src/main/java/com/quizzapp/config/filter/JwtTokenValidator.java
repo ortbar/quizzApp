@@ -55,13 +55,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
 
-
-
-
-
-
-
-
         }
 
         filterChain.doFilter(request,response);

@@ -16,5 +16,4 @@ public interface GameRepository extends JpaRepository<GameEntity, Long> {
     // RANKING DE PARTIDAS DE USUARIOS ORDENADAS POR PUNTOS DESCENDENTES
     List<GameEntity>findTop10ByOrderByScoreDesc();
 
-
 }
