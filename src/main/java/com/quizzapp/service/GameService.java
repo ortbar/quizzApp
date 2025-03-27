@@ -2,12 +2,16 @@ package com.quizzapp.service;
 
 
 import com.quizzapp.DTO.GameDTO;
+import com.quizzapp.DTO.UserAnswerDTO;
 import com.quizzapp.DTO.UserDTO;
 import com.quizzapp.Models.GameEntity;
+import com.quizzapp.Models.UserAnswerEntity;
 import com.quizzapp.Models.UserEntity;
-import com.quizzapp.Repository.GameRepository;
-import com.quizzapp.Repository.UserRepository;
+import com.quizzapp.Repository.*;
+import com.quizzapp.exceptions.QuestionNotFoundException;
+import com.quizzapp.exceptions.ResourceNotFoundException;
 import com.quizzapp.exceptions.UserNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,18 @@ public class GameService {
 
     @Autowired
     private GameRepository gameRepository;
+
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    @Autowired
+    private AnswerRepository answerRepository;
+
+    @Autowired
+    private UserAnswerRepository userAnswerRepository;
+
+
+
 
 
 
@@ -59,14 +75,37 @@ public class GameService {
         // GUARDAR PARTIDA EN BD
         GameEntity savedGame = gameRepository.save(gameEntity);
 
+        // 3️⃣ Convertir y guardar las respuestas del usuario
+        List<UserAnswerEntity> userAnswerEntities = gameDTO.getAnswers().stream()
+                .map(answerDTO -> UserAnswerEntity.builder()
+                        .game(savedGame) // Asociamos la partida
+                        .question(questionRepository.findById(answerDTO.getQuestionId())
+                                .orElseThrow(() -> new QuestionNotFoundException("Pregunta no encontrada con ID: " + answerDTO.getQuestionId())))
+                        .selectedAnswer(answerRepository.findById(answerDTO.getSelectedAnswerId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Respuesta no encontrada con ID: " + answerDTO.getSelectedAnswerId())))
+                        .build())
+                .collect(Collectors.toList());
+
+        userAnswerRepository.saveAll(userAnswerEntities);
+
         // convertir entity guardado a DTO
 
+        // 4️⃣ Convertir `GameEntity` a `GameDTO` y devolverlo
         return GameDTO.builder()
+                .id(savedGame.getId())
                 .gameName(savedGame.getGameName())
                 .score(savedGame.getScore())
                 .createdAt(savedGame.getCreatedAt())
                 .userId(savedGame.getUser().getId())
                 .username(savedGame.getUser().getUsername())
+                .answers(userAnswerEntities.stream()
+                        .map(userAnswer -> UserAnswerDTO.builder()
+                                .id(userAnswer.getId())
+                                .gameId(savedGame.getId())
+                                .questionId(userAnswer.getQuestion().getId())
+                                .selectedAnswerId(userAnswer.getSelectedAnswer().getId())
+                                .build())
+                        .collect(Collectors.toList()))
                 .build();
     }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,12 +15,13 @@ import java.time.LocalDateTime;
 @Builder
 public class GameDTO {
 
-
+    private Long id;
     private String gameName; // Nombre del juego
     private int score; // Puntuación del juego
     private LocalDateTime createdAt;
     private Long userId;
     private String username;
+    private List<UserAnswerDTO> answers;
 
 
 }
