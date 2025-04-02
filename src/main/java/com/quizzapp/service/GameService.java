@@ -13,6 +13,8 @@ import com.quizzapp.exceptions.ResourceNotFoundException;
 import com.quizzapp.exceptions.UserNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,6 +39,49 @@ public class GameService {
 
     @Autowired
     private UserAnswerRepository userAnswerRepository;
+
+
+    /**
+     * Método para obtener el nombre de usuario autenticado.
+     */
+    private String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+
+    public GameDTO startGame(){
+
+        String username = getAuthenticatedUsername();
+        UserEntity user = userRepository.findUserEntityByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+
+        // Crear una nueva partida
+        GameEntity newGame = GameEntity.builder()
+                .gameName("Partida-" + LocalDateTime.now().toString())
+                .score(0) // Iniciar con puntaje en 0
+                .createdAt(LocalDateTime.now())
+                .user(user)
+                .build();
+
+        // Guardar la partida en la BD
+        GameEntity savedGame = gameRepository.save(newGame);
+
+        // Convertir `GameEntity` a `GameDTO`
+        return GameDTO.builder()
+                .id(savedGame.getId())
+                .gameName(savedGame.getGameName())
+                .score(savedGame.getScore())
+                .createdAt(savedGame.getCreatedAt())
+                .userId(savedGame.getUser().getId())
+                .username(savedGame.getUser().getUsername())
+                .answers(Collections.emptyList()) // La partida inicia sin respuestas
+                .build();
+
+    }
 
 
 

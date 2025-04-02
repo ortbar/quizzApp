@@ -38,6 +38,12 @@ public class GameController {
         return ResponseEntity.ok(ranking);
     }
 
+    @PostMapping("/startGame")
+    public ResponseEntity<GameDTO> startGame() {
+        GameDTO newGame = gameService.startGame();
+        return ResponseEntity.ok(newGame);
+    }
+
 
 
 }

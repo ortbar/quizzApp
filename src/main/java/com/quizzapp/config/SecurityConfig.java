@@ -26,6 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +42,16 @@ public class SecurityConfig {
     @Autowired
     private JwtUtils jwtUtils;
 
+
+
+
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception { // httpSecurity se pasa por todos los filtros
 
         return httpSecurity
+                .cors(cors->cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf-> csrf.disable())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -58,7 +68,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/admin/questions/random").hasAnyRole("ADMIN","USER");
 
 
-
+                    http.requestMatchers(HttpMethod.POST, "/api/games/startGame").hasAnyAuthority("JUGAR");
                     http.requestMatchers(HttpMethod.POST, "/api/games/saveGame").hasAnyAuthority("JUGAR");
                     http.requestMatchers(HttpMethod.GET, "/api/games/findGamesByUserId/**").hasAnyRole("ADMIN","USER"); // Permitir acceso al historial de partidas del usuario
                     http.requestMatchers(HttpMethod.GET, "/api/games/ranking").hasAnyRole("ADMIN","USER"); // Permitir acceso al ranking
@@ -81,6 +91,22 @@ public class SecurityConfig {
                 .build();
 
     }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200")); // Permitir Angular frontend
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+
 
     /* componenete que adminstra la autorizacion, se crea a partir del objeto AuthenticationConfiguration */
 
