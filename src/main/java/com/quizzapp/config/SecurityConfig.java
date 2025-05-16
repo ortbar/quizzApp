@@ -60,6 +60,9 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "auth/**").permitAll();
                     //configurar endpoints privados
 
+                    http.requestMatchers(HttpMethod.GET, "admin/users/findAll").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.PUT,"admin/users/updateUser/**").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE,"admin/users/deleteUser/**").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.POST, "/admin/questions/saveQuestion").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/admin/questions/deleteQuestion/**").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "/admin/questions/AllQuestion").hasRole("ADMIN");
@@ -83,6 +86,7 @@ public class SecurityConfig {
 
                     http.requestMatchers(HttpMethod.GET, "method/play").hasAnyAuthority("JUGAR");
 
+
                     // cualquier otro endpoint, prohibe
                     http.anyRequest().denyAll();
 //                    http.anyRequest().authenticated();
@@ -98,6 +102,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200")); // Permitir Angular frontend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

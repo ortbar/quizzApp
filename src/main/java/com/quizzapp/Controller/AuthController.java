@@ -1,5 +1,6 @@
 package com.quizzapp.Controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import com.quizzapp.DTO.AuthCreateUserRequest;
 import com.quizzapp.DTO.AuthLoginRequest;
@@ -31,4 +32,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthLoginRequest userRequest) {
         return new ResponseEntity<>(this.userDetailService.loginUser(userRequest), HttpStatus.OK);
     }
+
+
+
 }

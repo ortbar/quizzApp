@@ -9,6 +9,7 @@ import com.quizzapp.Models.UserEntity;
 import com.quizzapp.Repository.QuestionRepository;
 import com.quizzapp.exceptions.QuestionNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class QuestionService {
 
         return questionEntityList.stream()
                 .map(questionEntity -> QuestionDTO.builder()
+                        .id(questionEntity.getId())
                         .textoPregunta(questionEntity.getTextoPregunta())
                         .answers(
                                 questionEntity.getAnswers().stream()
@@ -66,42 +68,59 @@ public class QuestionService {
                 .collect(Collectors.toList());
     }
 
-    public QuestionDTO saveQuestion(QuestionDTO questionDTO){
-        QuestionEntity questionEntity = QuestionEntity.builder()
-                .textoPregunta(questionDTO.getTextoPregunta())
-                .build();
+    public QuestionDTO saveQuestion(@Valid QuestionDTO questionDTO) {
 
-        // 2️⃣ Convertir las respuestas y asignarles la relación con la pregunta
+        // 🔒 Validación 1: exactamente 3 respuestas
+        if (questionDTO.getAnswers().size() != 3) {
+            throw new IllegalArgumentException("Debe proporcionar exactamente 3 respuestas.");
+        }
+
+        // 🔒 Validación 2: solo una respuesta puede ser correcta
+        long correctCount = questionDTO.getAnswers().stream()
+                .filter(AnswerDTO::isEsCorrecta)
+                .count();
+        if (correctCount != 1) {
+            throw new IllegalArgumentException("Debe marcar exactamente una respuesta como correcta.");
+        }
+
+        // 📦 Crear entidad de pregunta
+        QuestionEntity questionEntity = new QuestionEntity();
+        questionEntity.setId(questionDTO.getId());
+        questionEntity.setTextoPregunta(questionDTO.getTextoPregunta());
+
+        // 📦 Convertir respuestas
         List<AnswerEntity> answers = questionDTO.getAnswers().stream()
-                .map(answerDTO -> AnswerEntity.builder()
-                        .answerText(answerDTO.getAnswerText())
-                        .isCorrect(answerDTO.isEsCorrecta())
-                        .question(questionEntity) // ✅ Asignamos la relación con la pregunta
+                .map(answerDTO -> {
+                    AnswerEntity answerEntity = new AnswerEntity();
+                    answerEntity.setId(answerDTO.getId());
+                    answerEntity.setAnswerText(answerDTO.getAnswerText());
+                    answerEntity.setIsCorrect(answerDTO.isEsCorrecta());
+                    answerEntity.setQuestion(questionEntity);  // relación inversa
+                    return answerEntity;
+                })
+                .collect(Collectors.toList());
+
+        questionEntity.setAnswers(answers);
+
+        // 💾 Guardar en base de datos
+        QuestionEntity savedQuestion = questionRespository.save(questionEntity);
+
+        // 🔄 Convertir de vuelta a DTO
+        List<AnswerDTO> savedAnswers = savedQuestion.getAnswers().stream()
+                .map(answer -> AnswerDTO.builder()
+                        .id(answer.getId())
+                        .answerText(answer.getAnswerText())
+                        .esCorrecta(answer.getIsCorrect())
                         .build())
                 .collect(Collectors.toList());
 
-        // 3️⃣ Asignar la lista de respuestas a la pregunta
-        questionEntity.setAnswers(answers);
-
-
-        // guarar en la bd
-        QuestionEntity savedQuestion = questionRespository.save(questionEntity);
-
-        // convertir la entidad guardada a DTO para la respuesta
         return QuestionDTO.builder()
                 .id(savedQuestion.getId())
                 .textoPregunta(savedQuestion.getTextoPregunta())
-                .answers(
-                        savedQuestion.getAnswers().stream()
-                                .map(answerEntity -> AnswerDTO.builder()
-                                        .id(answerEntity.getId())
-                                        .answerText(answerEntity.getAnswerText())
-                                        .esCorrecta(answerEntity.getIsCorrect())
-                                        .build())
-                                .collect(Collectors.toList())
-                )
+                .answers(savedAnswers)
                 .build();
     }
+
 
     public QuestionDTO updateQuestion(Long id, QuestionDTO questionDTO) {
         return questionRespository.findById(id) // Devuelve Optional<QuestionEntity>

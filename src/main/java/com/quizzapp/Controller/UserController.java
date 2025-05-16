@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping(path = "api/users")
+@RequestMapping(path = "admin/users")
 public class UserController {
 
     @Autowired
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PutMapping("/updateUser/{id}")
-    public ResponseEntity<UserDTO> updateUser(@Valid @PathVariable Long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> updateUser( @PathVariable Long id, @Valid @RequestBody UserDTO userDTO) {
         UserDTO user = userService.updateUser(id, userDTO);
         return ResponseEntity.ok(user);
     }

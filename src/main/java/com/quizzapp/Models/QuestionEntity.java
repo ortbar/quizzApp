@@ -2,6 +2,8 @@ package com.quizzapp.Models;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -22,11 +24,13 @@ public class QuestionEntity {
     private Long id;
 
     @Column(name = "texto_pregunta", nullable = false, length = 255)
+    @NotBlank
     private String textoPregunta;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnswerEntity> answers;

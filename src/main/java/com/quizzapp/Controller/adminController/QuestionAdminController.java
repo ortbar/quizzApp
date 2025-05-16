@@ -4,12 +4,13 @@ import com.quizzapp.DTO.QuestionDTO;
 import com.quizzapp.Models.QuestionEntity;
 import com.quizzapp.Repository.QuestionRepository;
 import com.quizzapp.service.QuestionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/admin/questions")
 public class QuestionAdminController {
@@ -42,7 +43,7 @@ public class QuestionAdminController {
     }
 
     @PostMapping("/saveQuestion")
-    public ResponseEntity<QuestionDTO> createQuestion(@RequestBody QuestionDTO questionDTO) {
+    public ResponseEntity<QuestionDTO> createQuestion(@Valid @RequestBody QuestionDTO questionDTO) {
         QuestionDTO createdQuestion = questionService.saveQuestion(questionDTO);
         return ResponseEntity.ok(createdQuestion);
     }

@@ -3,10 +3,12 @@ package com.quizzapp.service;
 import com.quizzapp.DTO.AuthCreateUserRequest;
 import com.quizzapp.DTO.AuthLoginRequest;
 import com.quizzapp.DTO.AuthResponse;
+import com.quizzapp.Models.Erole;
 import com.quizzapp.Models.RoleEntity;
 import com.quizzapp.Models.UserEntity;
 import com.quizzapp.Repository.RoleRepository;
 import com.quizzapp.Repository.UserRepository;
+import com.quizzapp.exceptions.UsernameInUseException;
 import com.quizzapp.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -51,7 +53,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserEntity userEntity = userRepository.findUserEntityByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + "no existe."));
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no existe."));
 
         //COGEMOS LOS ROLES  y permisos de uusario y los estamos conviertiendo a un objto de springSecurity PARA SETEAR EL OBJETO DE
 
@@ -103,19 +105,37 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(username,userDetails.getPassword(),userDetails.getAuthorities());
     }
 
+
+    // validaciones
+
+
+
+
+
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
         String username = authCreateUserRequest.username();
         String password = authCreateUserRequest.password();
 
-        List<String>roleRequest = authCreateUserRequest.roleRequest().roleListName();
+        if (userRepository.findUserEntityByUsername(username).isPresent()) {
+            throw new UsernameInUseException("El usuario con nombre: " + username + " ya existe");
+        }
 
-      Set<RoleEntity> roleEntitySet =  roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest)
-              .stream()
-              .collect(Collectors.toSet());
 
-      if(roleEntitySet.isEmpty()) {
-          throw new IllegalArgumentException("los roles especificados no existen");
-      }
+//        List<String>roleRequest = authCreateUserRequest.roleRequest().roleListName();
+//
+//      Set<RoleEntity> roleEntitySet =  roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest)
+//              .stream()
+//              .collect(Collectors.toSet());
+
+        //  siempre el rol USER
+        RoleEntity roleUser = roleRepository.findByRoleEnum(Erole.USER)
+                .orElseThrow(() -> new IllegalArgumentException("El rol USER no existe en BBDD"));
+
+        Set<RoleEntity> roleEntitySet = Set.of(roleUser);
+//
+//      if(roleEntitySet.isEmpty()) {
+//          throw new IllegalArgumentException("los roles especificados no existen");
+//      }
 
       UserEntity userEntity = UserEntity.builder()
               .username(username)

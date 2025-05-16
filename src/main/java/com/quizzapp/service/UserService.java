@@ -6,10 +6,16 @@ import com.quizzapp.DTO.UserDTO;
 import com.quizzapp.Models.UserEntity;
 import com.quizzapp.Repository.RoleRepository;
 import com.quizzapp.Repository.UserRepository;
+import com.quizzapp.exceptions.EmailAlreadyExistsException;
 import com.quizzapp.exceptions.UserNotFoundException;
+import com.quizzapp.exceptions.UsernameInUseException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.Role;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +29,11 @@ public class UserService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
 
     public UserDTO findById(Long id) {
         Optional<UserEntity> userOptional = userRepository.findById(id);
@@ -130,12 +141,39 @@ public class UserService {
     }
 
     // tudú:comprobar unicidad del email y username antes de actualizar, si ya existen, lamzar excepcion
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
+    public UserDTO updateUser(Long id, @Valid UserDTO userDTO) {
         return userRepository.findById(id)
                 .map(userEntity -> {
+                    // Verifica si el username ya existe y no es del mismo usuario
+                    Optional<UserEntity> existingUserWithUsername = userRepository.findUserEntityByUsername(userDTO.getUsername());
+
+                    //validar si existe ya el username elegido
+                    if (existingUserWithUsername.isPresent() && !existingUserWithUsername.get().getId().equals(id)) {
+                        throw new UsernameInUseException("Username en uso, elija otro");
+                    }
+
+                    //validar si existe ya el email elegido
+                    userRepository.findByEmail(userDTO.getEmail())
+                                    .filter(existingUser -> !existingUser.getId().equals(id))
+                                    .ifPresent(existingUser -> {
+                                                throw new EmailAlreadyExistsException("Email en uso, elija otro");
+                                    });
+
+                    List<String> roleNames = userDTO.getRoles().stream()
+                            .map(String::toUpperCase)
+                            .map(Erole::valueOf)
+                            .map(Erole::name) // pasamos de Erole.ADMIN → "ADMIN"
+                            .toList();
+
+                    List<RoleEntity> roleEntities = roleRepository.findRoleEntitiesByRoleEnumIn(roleNames);
+
                     userEntity.setUsername(userDTO.getUsername());
                     userEntity.setEmail(userDTO.getEmail());
-                    userEntity.setPassword(userDTO.getPassword());
+                    // si la clave viene vacia desde el frontend, se mantiene la que habia
+                    if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank()) {
+                        userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+                    }
+                    userEntity.setRoles(new HashSet<>(roleEntities));
                     UserEntity updatedUser = userRepository.save(userEntity);
 
                     return convertToDTO(updatedUser);
@@ -144,6 +182,11 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
+
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("El usuario con ID " + id + " no existe.");
+        }
+
         userRepository.deleteById(id);
     }
 
