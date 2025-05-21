@@ -47,6 +47,7 @@ public class SecurityConfig {
 
 
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception { // httpSecurity se pasa por todos los filtros
 
@@ -58,8 +59,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http-> {
                     //configurar endpoints publicos
                     http.requestMatchers(HttpMethod.POST, "auth/**").permitAll();
+//
+
                     //configurar endpoints privados
 
+
+                    http.requestMatchers(HttpMethod.GET,"api/user/profile").hasAnyRole("ADMIN","USER");
+                    http.requestMatchers(HttpMethod.PUT,"api/user/edit-profile").hasAnyRole("ADMIN","USER");
                     http.requestMatchers(HttpMethod.GET, "admin/users/findAll").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.PUT,"admin/users/updateUser/**").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE,"admin/users/deleteUser/**").hasRole("ADMIN");

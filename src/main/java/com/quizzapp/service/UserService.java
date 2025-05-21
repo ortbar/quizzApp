@@ -1,5 +1,6 @@
 package com.quizzapp.service;
 
+import com.quizzapp.DTO.UserProfileUpdateDTO;
 import com.quizzapp.Models.Erole;
 import com.quizzapp.Models.RoleEntity;
 import com.quizzapp.DTO.UserDTO;
@@ -189,6 +190,48 @@ public class UserService {
 
         userRepository.deleteById(id);
     }
+
+    public UserDTO findByUsername(String username) {
+        return userRepository.findUserEntityByUsername(username)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new UserNotFoundException("Usuario con username " + username + " no encontrado"));
+    }
+
+    public UserDTO updateOwnProfile(String username, UserProfileUpdateDTO updateDTO) {
+        UserEntity user = userRepository.findUserEntityByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+
+        // Validar username único (si es diferente al actual)
+        if (!user.getUsername().equals(updateDTO.getUsername())) {
+            userRepository.findUserEntityByUsername(updateDTO.getUsername())
+                    .ifPresent(existing -> {
+                        throw new UsernameInUseException("El nombre de usuario ya está en uso");
+                    });
+        }
+
+        // Validar email único (si es diferente al actual)
+        if (!user.getEmail().equals(updateDTO.getEmail())) {
+            userRepository.findByEmail(updateDTO.getEmail())
+                    .ifPresent(existing -> {
+                        throw new EmailAlreadyExistsException("El email ya está en uso");
+                    });
+        }
+
+        // Actualizar campos
+        user.setUsername(updateDTO.getUsername());
+        user.setEmail(updateDTO.getEmail());
+
+        if (updateDTO.getPassword() != null && !updateDTO.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
+        }
+
+        UserEntity updated = userRepository.save(user);
+        return convertToDTO(updated);
+    }
+
+
+
+
 
 
 

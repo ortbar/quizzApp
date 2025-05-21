@@ -37,8 +37,8 @@ public class AnswerEntity {
 
     /* RELACION CON UserAnswer */
 
-    @OneToMany(mappedBy = "selectedAnswer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserAnswerEntity> userAnswers;
+//    @OneToMany(mappedBy = "selectedAnswer", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<UserAnswerEntity> userAnswers;
 
 
 }
