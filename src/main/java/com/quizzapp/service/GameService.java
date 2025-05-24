@@ -107,8 +107,9 @@ public class GameService {
 
     public GameDTO saveGame(GameDTO gameDTO) {
         //obtener usuario asociado a la partida
-        UserEntity user = userRepository.findById(gameDTO.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("usuario no encontrado"));
+        String username = getAuthenticatedUsername();
+        UserEntity user = userRepository.findUserEntityByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
         // CONVERTIR DTO A ENTITY
         GameEntity gameEntity = GameEntity.builder()
                 .gameName("Partida-" + LocalDateTime.now().toString())
