@@ -80,7 +80,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "/api/game/startGame").hasAnyAuthority("JUGAR");
                     http.requestMatchers(HttpMethod.POST, "/api/game/saveGame").hasAnyAuthority("JUGAR");
                     http.requestMatchers(HttpMethod.GET, "/api/games/findGamesByUserId/**").hasAnyRole("ADMIN","USER"); // Permitir acceso al historial de partidas del usuario
-                    http.requestMatchers(HttpMethod.GET, "/api/games/ranking").hasAnyRole("ADMIN","USER"); // Permitir acceso al ranking
+                    http.requestMatchers(HttpMethod.GET, "/api/game/ranking").hasAnyRole("ADMIN","USER"); // Permitir acceso al ranking
                     http.requestMatchers(HttpMethod.DELETE, "/admin/games/deleteGame/**").hasRole("ADMIN"); // Solo administradores
                     http.requestMatchers(HttpMethod.GET, "/admin/games/findAll").hasRole("ADMIN"); // Solo administradores
 

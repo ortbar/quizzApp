@@ -53,34 +53,19 @@ public class GameService {
         }
     }
 
-    public GameDTO startGame(){
-
+    public GameDTO startGame() {
         String username = getAuthenticatedUsername();
         UserEntity user = userRepository.findUserEntityByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
 
-        // Crear una nueva partida
-        GameEntity newGame = GameEntity.builder()
-                .gameName("Partida-" + LocalDateTime.now().toString())
-                .score(0) // Iniciar con puntaje en 0
-                .createdAt(LocalDateTime.now())
-                .user(user)
-                .build();
-
-        // Guardar la partida en la BD
-        GameEntity savedGame = gameRepository.save(newGame);
-
-        // Convertir `GameEntity` a `GameDTO`
         return GameDTO.builder()
-                .id(savedGame.getId())
-                .gameName(savedGame.getGameName())
-                .score(savedGame.getScore())
-                .createdAt(savedGame.getCreatedAt())
-                .userId(savedGame.getUser().getId())
-                .username(savedGame.getUser().getUsername())
-                .answers(Collections.emptyList()) // La partida inicia sin respuestas
+                .gameName("Partida-" + LocalDateTime.now())
+                .score(0)
+                .createdAt(LocalDateTime.now())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .answers(Collections.emptyList())
                 .build();
-
     }
 
 
