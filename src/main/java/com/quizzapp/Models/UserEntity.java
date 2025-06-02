@@ -36,6 +36,7 @@ public class UserEntity {
 //            regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$",
 //            message = "Solo se permiten correos de Gmail (@gmail.com)"
 //    )
+
     private String email;
 
 //    @NotBlank(message = "El username no puede estar vacío")

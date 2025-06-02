@@ -71,6 +71,8 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.DELETE,"admin/users/deleteUser/**").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.POST, "/admin/questions/saveQuestion").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "/admin/questions/deleteQuestion/**").hasRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET, "/admin/questions/AllPaginatedQuestion").hasRole("ADMIN");
+
                     http.requestMatchers(HttpMethod.GET, "/admin/questions/AllQuestion").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.PUT, "/admin/questions/updateQuestion/**").hasRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "/admin/questions/findQuestion/**").hasRole("ADMIN");

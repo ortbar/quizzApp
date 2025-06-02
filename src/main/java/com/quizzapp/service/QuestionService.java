@@ -11,6 +11,8 @@ import com.quizzapp.exceptions.QuestionNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +49,26 @@ public class QuestionService {
                         )
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public Page<QuestionDTO> getPaginatedQuestions(Pageable pageable) {
+        Page<QuestionEntity> questionEntities = questionRespository.findAll(pageable);
+
+        return questionEntities.map(questionEntity -> QuestionDTO.builder()
+                .id(questionEntity.getId())
+                .textoPregunta(questionEntity.getTextoPregunta())
+                .answers(
+                        questionEntity.getAnswers().stream()
+                                .map(answerEntity -> AnswerDTO.builder()
+                                        .id(answerEntity.getId())
+                                        .answerText(answerEntity.getAnswerText())
+                                        .esCorrecta(answerEntity.getIsCorrect())
+                                        .build())
+                                .collect(Collectors.toList())
+                )
+                        .build()
+                );
+
     }
 
 

@@ -8,6 +8,7 @@ import com.quizzapp.Models.RoleEntity;
 import com.quizzapp.Models.UserEntity;
 import com.quizzapp.Repository.RoleRepository;
 import com.quizzapp.Repository.UserRepository;
+import com.quizzapp.exceptions.EmailAlreadyExistsException;
 import com.quizzapp.exceptions.UsernameInUseException;
 import com.quizzapp.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,11 +115,16 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
         String username = authCreateUserRequest.username();
+        String email = authCreateUserRequest.email();
         String password = authCreateUserRequest.password();
 
         if (userRepository.findUserEntityByUsername(username).isPresent()) {
             throw new UsernameInUseException("El usuario con nombre: " + username + " ya existe");
         }
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new EmailAlreadyExistsException("El email ya está registrado");
+        }
+
 
 
 //        List<String>roleRequest = authCreateUserRequest.roleRequest().roleListName();
@@ -139,6 +145,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
       UserEntity userEntity = UserEntity.builder()
               .username(username)
+              .email(email)
               .password(passwordEncoder.encode(password))
               .roles(roleEntitySet)
               .isEnabled(true)
