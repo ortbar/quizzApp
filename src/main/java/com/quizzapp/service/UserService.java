@@ -10,6 +10,7 @@ import com.quizzapp.Repository.UserRepository;
 import com.quizzapp.exceptions.EmailAlreadyExistsException;
 import com.quizzapp.exceptions.UserNotFoundException;
 import com.quizzapp.exceptions.UsernameInUseException;
+import com.quizzapp.util.JwtUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
 
 
@@ -205,6 +209,7 @@ public class UserService {
         if (!user.getUsername().equals(updateDTO.getUsername())) {
             userRepository.findUserEntityByUsername(updateDTO.getUsername())
                     .ifPresent(existing -> {
+
                         throw new UsernameInUseException("El nombre de usuario ya está en uso");
                     });
         }
@@ -228,6 +233,7 @@ public class UserService {
         UserEntity updated = userRepository.save(user);
         return convertToDTO(updated);
     }
+
 
 
 

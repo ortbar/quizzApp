@@ -7,18 +7,23 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.quizzapp.Models.UserEntity;
+import com.quizzapp.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
+
+    @Autowired
+    UserRepository userRepository;
 
     @Value("${security.jwt.key.private}")
     private String privateKey;
@@ -82,6 +87,37 @@ public class JwtUtils {
 
     public Map<String, Claim> returnAllClaims(DecodedJWT decodedJWT){
         return decodedJWT.getClaims();
+    }
+
+    // Método para generar token SOLO con el username (sin Authentication)
+    public String createTokenFromUsername(String username) {
+        Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
+
+        UserEntity userEntity = userRepository.findUserEntityByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado para token"));
+
+        // Generar lista de authorities como String separados por coma
+        String authorities = userEntity.getRoles().stream()
+                .flatMap(role -> {
+                    List<String> roleAndPermissions = new ArrayList<>();
+                    roleAndPermissions.add("ROLE_" + role.getRoleEnum().name());
+                    role.getPermissionList().forEach(permission -> roleAndPermissions.add(permission.getName()));
+                    return roleAndPermissions.stream();
+                })
+                .collect(Collectors.joining(","));
+
+        String jwtToken = JWT.create()
+                .withIssuer(this.userGenerator)
+                .withSubject(username) // Username como subject
+                .withClaim("authorities", authorities) //
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 1800000)) // 30 min
+                .withJWTId(UUID.randomUUID().toString())
+                .withNotBefore(new Date(System.currentTimeMillis()))
+                .sign(algorithm);
+
+        System.out.println("Token generado para actualización con authorities: " + jwtToken);
+        return jwtToken;
     }
 
 

@@ -29,6 +29,8 @@ public class UserProfileUpdateDTO {
 //    @Size(min = 5, max = 10, message = "El password debe tener entre 5 y 10 caracteres")
     private String password;
 
+    private String token;
+
 
 
 

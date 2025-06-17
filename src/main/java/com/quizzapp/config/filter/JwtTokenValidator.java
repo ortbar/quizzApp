@@ -1,6 +1,7 @@
 package com.quizzapp.config.filter;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.quizzapp.service.UserDetailServiceImpl;
 import com.quizzapp.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,9 @@ import java.util.stream.Collectors;
 // FILTRO QUE VA A VALIDAR SI EL TOKEN ES VALIDO. SE VA EJECTURAR CADA VEZ QUE SE HAGA UNA PETICION
 
 public class JwtTokenValidator extends OncePerRequestFilter {
+
+    @Autowired
+    private UserDetailServiceImpl userDetails;
 
 
     private JwtUtils jwtUtils;

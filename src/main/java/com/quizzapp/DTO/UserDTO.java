@@ -56,19 +56,17 @@ public class UserDTO {
     @NotEmpty(message = "El usuario debe tener al menos un rol.")
     private Set<String> roles = new HashSet<>();
 
-    @Column(name = "is_enabled")
     private boolean isEnabled;
 
-    @Column(name = "acconunt_No_expired")
     private boolean accountNotExpired;
 
-    @Column(name = "account_No_locked")
     private boolean accountNotLocked;
 
-    @Column(name = "credential_No_expired")
     private boolean credentialNotExpired;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    private String token;
 }
