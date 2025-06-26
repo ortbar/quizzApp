@@ -60,6 +60,13 @@ public class SecurityConfig {
                     //configurar endpoints publicos
                     http.requestMatchers(HttpMethod.POST, "auth/**").permitAll();
 //
+                    // Swagger endpoints públicos
+                    http.requestMatchers(
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-resources/**",
+                        "/swagger-ui.html"
+                    ).permitAll();
 
                     //configurar endpoints privados
 

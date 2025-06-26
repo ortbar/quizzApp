@@ -26,12 +26,13 @@ public class UserProfileUpdateDTO {
     @Size(min = 5, max = 10, message = "El username debe tener entre 5 y 10 caracteres")
     private String username;
 
-//    @Size(min = 5, max = 10, message = "El password debe tener entre 5 y 10 caracteres")
-    private String password;
+    @NotBlank(message = "El password actual no puede estar vacío")
+    private String currentPassword;
 
-    private String token;
+    @Size(min = 5, max = 10, message = "La nueva contraseña debe tener entre 5 y 10 caracteres")
+    private String newPassword;
 
+    private String repeatNewPassword;
 
-
-
+    // El campo password y token ya no se usan para el cambio de contraseña
 }

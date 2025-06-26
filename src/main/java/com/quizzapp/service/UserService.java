@@ -10,6 +10,7 @@ import com.quizzapp.Repository.UserRepository;
 import com.quizzapp.exceptions.EmailAlreadyExistsException;
 import com.quizzapp.exceptions.UserNotFoundException;
 import com.quizzapp.exceptions.UsernameInUseException;
+import com.quizzapp.exceptions.IncorrectPasswordException;
 import com.quizzapp.util.JwtUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,7 +210,6 @@ public class UserService {
         if (!user.getUsername().equals(updateDTO.getUsername())) {
             userRepository.findUserEntityByUsername(updateDTO.getUsername())
                     .ifPresent(existing -> {
-
                         throw new UsernameInUseException("El nombre de usuario ya está en uso");
                     });
         }
@@ -226,8 +226,19 @@ public class UserService {
         user.setUsername(updateDTO.getUsername());
         user.setEmail(updateDTO.getEmail());
 
-        if (updateDTO.getPassword() != null && !updateDTO.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(updateDTO.getPassword()));
+        // Cambiar contraseña solo si se solicita
+        if (updateDTO.getCurrentPassword() != null && !updateDTO.getCurrentPassword().isBlank()) {
+            // Verificar contraseña actual
+            if (!passwordEncoder.matches(updateDTO.getCurrentPassword(), user.getPassword())) {
+                throw new IncorrectPasswordException("La contraseña actual es incorrecta");
+            }
+            // Verificar que las nuevas contraseñas coincidan
+            if (updateDTO.getNewPassword() == null || updateDTO.getRepeatNewPassword() == null ||
+                !updateDTO.getNewPassword().equals(updateDTO.getRepeatNewPassword())) {
+                throw new IncorrectPasswordException("Las nuevas contraseñas no coinciden");
+            }
+            // Cambiar la contraseña
+            user.setPassword(passwordEncoder.encode(updateDTO.getNewPassword()));
         }
 
         UserEntity updated = userRepository.save(user);

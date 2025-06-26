@@ -21,7 +21,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 // FILTRO QUE VA A VALIDAR SI EL TOKEN ES VALIDO. SE VA EJECTURAR CADA VEZ QUE SE HAGA UNA PETICION
 

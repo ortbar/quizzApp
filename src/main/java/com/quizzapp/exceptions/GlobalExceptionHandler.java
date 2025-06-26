@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
@@ -94,6 +95,16 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(new ApiErrorResponse(ex.getMessage(), 400,LocalDateTime.now().toString()),HttpStatus.BAD_REQUEST);
+    }
+
+        @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<ApiErrorResponse> handleIncorrectPassword(IncorrectPasswordException ex) {
+        ApiErrorResponse error = new ApiErrorResponse(
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            Instant.now().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
