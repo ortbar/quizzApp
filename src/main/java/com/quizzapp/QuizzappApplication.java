@@ -70,6 +70,7 @@ public class QuizzappApplication {
 
 			UserEntity userAlejandro = UserEntity.builder()
 					.username("alejandro")
+					.email("alejandro@example.com")
 					.password("$2a$10$/D0YNdddt6lDr3gK2jigc.yHJvWBO3.GOlYDL5g4bJAD7XFXHBj.S")
 					.isEnabled(true)
 					.accountNotExpired(true)
@@ -80,6 +81,7 @@ public class QuizzappApplication {
 
 			UserEntity userPepito = UserEntity.builder()
 					.username("pepito")
+					.email("pepito@example.com")
 					.password("$2a$10$/D0YNdddt6lDr3gK2jigc.yHJvWBO3.GOlYDL5g4bJAD7XFXHBj.S")
 					.isEnabled(true)
 					.accountNotExpired(true)
@@ -90,6 +92,7 @@ public class QuizzappApplication {
 
 			UserEntity userCloti = UserEntity.builder()
 					.username("cloti")
+					.email("cloti@example.com")
 					.password("$2a$10$/D0YNdddt6lDr3gK2jigc.yHJvWBO3.GOlYDL5g4bJAD7XFXHBj.S")
 					.isEnabled(true)
 					.accountNotExpired(true)
@@ -100,6 +103,7 @@ public class QuizzappApplication {
 
 			UserEntity userVicato = UserEntity.builder()
 					.username("vicato")
+					.email("vicato@example.com")
 					.password("$2a$10$/D0YNdddt6lDr3gK2jigc.yHJvWBO3.GOlYDL5g4bJAD7XFXHBj.S")
 					.isEnabled(true)
 					.accountNotExpired(true)
